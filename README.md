@@ -95,8 +95,8 @@ What data is available depends on how many current transformer clamps (CT) are i
 
 - Current power production and consumption, today's, last 7 days and lifetime energy production and consumption over all phases.
 - Current power production and consumption, today's, last 7 days and lifetime energy production and consumption for each individual phase named L1, L2 and L3.
-- Current net power production and consumption and lifetime net energy production and consumption over all phases.
-- Current net power production and consumption and lifetime net energy production and consumption for each individual phase named L1, L2 and L3.
+- Current net power consumption and lifetime net energy production and consumption over all phases.
+- Current net power consumption and lifetime net energy production and consumption for each individual phase named L1, L2 and L3.
 - Current power production for each connected inverter.
 
 **Note** If you have CT clamps on a single phase / breaker circuit only, the L1 production and consumption phase sensors will show same data as the over all phases sensors.
@@ -122,7 +122,6 @@ A device `Envoy <serialnumber>` is created with sensor entities for accessible d
 |Sensor name|Sensor ID|Units|remarks|
 |-----|-----|----|----|
 |Envoy \<sn\> Current Power Production|sensor.Envoy_\<sn\>_current_power_production|W||
-|Envoy \<sn\> Current Net Power Production|sensor.Envoy_\<sn\>_current_power_production_net|W|4|
 |Envoy \<sn\> Today's Energy production|sensor.Envoy_\<sn\>_todays_energy_production|Wh|1|
 |Envoy \<sn\> Last Seven Days Energy Production|sensor.Envoy_\<sn\>_last_seven_days_energy_production|Wh|1|
 |Envoy \<sn\> Lifetime Energy Production|sensor.Envoy_\<sn\>_lifetime_energy_production|Wh|2|
@@ -135,7 +134,6 @@ A device `Envoy <serialnumber>` is created with sensor entities for accessible d
 |Envoy \<sn\> Lifetime Net Energy Consumption|sensor.Envoy_\<sn\>_lifetime_energy_consumption_net|Wh|4,5|
 |Grid Status |binary_sensor.grid_status|On/Off|3|
 Envoy \<sn\> Current Power Production L\<n\>|sensor.Envoy_\<sn\>_current_power_production_L\<n\>|W|4,5|
-|Envoy \<sn\> Current Net Power Production L\<n\>|sensor.Envoy_\<sn\>_current_power_production_net_L\<n\>|W|4,5|
 |Envoy \<sn\> Today's Energy production L\<n\>|sensor.Envoy_\<sn\>_todays_energy_production_L\<n\>|Wh|4,5|
 |Envoy \<sn\> Last Seven Days Energy Production L\<n\>|sensor.Envoy_\<sn\>_last_seven_days_energy_production L\<n\>|Wh|4,5|
 |Envoy \<sn\> Lifetime Energy Production L\<n\>|sensor.Envoy_\<sn\>_lifetime_energy_production_L\<n\>|Wh|4,5|

@@ -93,10 +93,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     data[description.key] = await envoy_reader.production_phase(
                         description.key
                     )
-                elif description.key.startswith("production_net_"):
-                    data[description.key] = await envoy_reader.production_net_phase(
-                        description.key
-                    )
                 elif description.key.startswith("consumption_"):
                     data[description.key] = await envoy_reader.consumption_phase(
                         description.key

@@ -631,19 +631,6 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
                 raise RuntimeError("No match for production, check REGEX  " + text)
         return int(production)
 
-    async def production_net(self):
-        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
-        """so that this method will only read data from stored variables"""
-
-        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
-            raw_json = self.endpoint_production_json_results.json()
-            production = raw_json["production"][1]["wNow"]
-            consumption = raw_json["consumption"][0]["wNow"]
-            consumption_net = raw_json["consumption"][1]["wNow"]
-            return int(production - consumption + consumption_net)
-
-        return None
-
     async def production_phase(self, phase):
         """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
         """so that this method will only read data from stored variables"""
@@ -654,25 +641,6 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             try:
                 return int(
                     raw_json["production"][1]["lines"][phase_map[phase]]["wNow"]
-                )
-            except (KeyError, IndexError):
-                return None
-
-        return None
-
-    async def production_net_phase(self, phase):
-        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
-        """so that this method will only read data from stored variables"""
-        phase_map = {"production_net_l1": 0,"production_net_l2": 1,"production_net_l3": 2}
-
-        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
-            raw_json = self.endpoint_production_json_results.json()
-            try:
-                production_phase = raw_json["production"][1]["lines"][phase_map[phase]]["wNow"]
-                consumption_phase = raw_json["consumption"][0]["lines"][phase_map[phase]]["wNow"]
-                consumption_phase_net = raw_json["consumption"][1]["lines"][phase_map[phase]]["wNow"]
-                return int(
-                    production_phase - consumption_phase + consumption_phase_net
                 )
             except (KeyError, IndexError):
                 return None
