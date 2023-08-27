@@ -1087,7 +1087,6 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
         results = loop.run_until_complete(
             asyncio.gather(
                 self.production(),
-                self.production_net(),
                 self.consumption(),
                 self.consumption_net(),
                 self.daily_production(),
@@ -1105,17 +1104,16 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
         )
 
         print(f"production:               {results[0]}")
-        print(f"production_net:           {results[1]}")
-        print(f"consumption:              {results[2]}")
-        print(f"consumption_net:          {results[3]}")
-        print(f"daily_production:         {results[4]}")
-        print(f"daily_consumption:        {results[5]}")
-        print(f"seven_days_production:    {results[6]}")
-        print(f"seven_days_consumption:   {results[7]}")
-        print(f"lifetime_production:      {results[8]}")
-        print(f"lifetime_production_net:  {results[9]}")
-        print(f"lifetime_consumption:     {results[10]}")
-        print(f"lifetime_consumption_net: {results[11]}")
+        print(f"consumption:              {results[1]}")
+        print(f"consumption_net:          {results[2]}")
+        print(f"daily_production:         {results[3]}")
+        print(f"daily_consumption:        {results[4]}")
+        print(f"seven_days_production:    {results[5]}")
+        print(f"seven_days_consumption:   {results[6]}")
+        print(f"lifetime_production:      {results[7]}")
+        print(f"lifetime_production_net:  {results[8]}")
+        print(f"lifetime_consumption:     {results[9]}")
+        print(f"lifetime_consumption_net: {results[10]}")
         if "401" in str(data_results):
             print(
                 "inverters_production:    Unable to retrieve inverter data - Authentication failure"
