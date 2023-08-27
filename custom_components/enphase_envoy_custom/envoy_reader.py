@@ -618,6 +618,18 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
 
         return self.message_consumption_not_available
 
+    async def consumption_net(self):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+
+        """Only return data if Envoy supports Consumption"""
+        if self.endpoint_type == ENVOY_MODEL_S and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            consumption_net = raw_json["consumption"][1]["wNow"]
+            return int(consumption_net)
+
+        return self.message_consumption_not_available
+
     async def consumption_phase(self, phase):
         """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
         """so that this method will only read data from stored variables"""
@@ -631,6 +643,21 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             except (KeyError, IndexError):
                 return None
 
+        return None
+
+    async def consumption_net_phase(self, phase):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+        phase_map = {"consumption_net_l1": 0, "consumption_net_l2": 1, "consumption_net_l3": 2}
+
+        """Only return data if Envoy supports Consumption"""
+        if self.endpoint_type == ENVOY_MODEL_S and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            try:
+                return int(raw_json["consumption"][1]["lines"][phase_map[phase]]["wNow"])
+            except (KeyError, IndexError):
+                return None
+        
         return None
 
     async def daily_production(self):
@@ -805,6 +832,18 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
 
         return self.message_consumption_not_available
 
+    async def lifetime_consumption_net(self):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+
+        """Only return data if Envoy supports Consumption"""
+        if self.endpoint_type == ENVOY_MODEL_S and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            lifetime_consumption_net = raw_json["consumption"][1]["whLifetime"]
+            return int(lifetime_consumption_net)
+
+        return self.message_consumption_not_available
+
     async def lifetime_consumption_phase(self, phase):
         """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
         """so that this method will only read data from stored variables"""
@@ -816,6 +855,23 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             try:
                 return int(
                     raw_json["consumption"][0]["lines"][phase_map[phase]]["whLifetime"]
+                )
+            except (KeyError, IndexError):
+                return None
+
+        return None
+
+    async def lifetime_consumption_net_phase(self, phase):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+        phase_map = {"lifetime_consumption_net_l1": 0,"lifetime_consumption_net_l2": 1,"lifetime_consumption_net_l3": 2}
+
+        """Only return data if Envoy supports Consumption"""
+        if self.endpoint_type == ENVOY_MODEL_S and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            try:
+                return int(
+                    raw_json["consumption"][1]["lines"][phase_map[phase]]["whLifetime"]
                 )
             except (KeyError, IndexError):
                 return None
@@ -915,26 +971,30 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             asyncio.gather(
                 self.production(),
                 self.consumption(),
+                self.consumption_net(),
                 self.daily_production(),
                 self.daily_consumption(),
                 self.seven_days_production(),
                 self.seven_days_consumption(),
                 self.lifetime_production(),
                 self.lifetime_consumption(),
+                self.lifetime_consumption_net(),
                 self.inverters_production(),
                 self.battery_storage(),
                 return_exceptions=False,
             )
         )
 
-        print(f"production:              {results[0]}")
-        print(f"consumption:             {results[1]}")
-        print(f"daily_production:        {results[2]}")
-        print(f"daily_consumption:       {results[3]}")
-        print(f"seven_days_production:   {results[4]}")
-        print(f"seven_days_consumption:  {results[5]}")
-        print(f"lifetime_production:     {results[6]}")
-        print(f"lifetime_consumption:    {results[7]}")
+        print(f"production:               {results[0]}")
+        print(f"consumption:              {results[1]}")
+        print(f"consumption_net:          {results[2]}")
+        print(f"daily_production:         {results[3]}")
+        print(f"daily_consumption:        {results[4]}")
+        print(f"seven_days_production:    {results[5]}")
+        print(f"seven_days_consumption:   {results[6]}")
+        print(f"lifetime_production:      {results[7]}")
+        print(f"lifetime_consumption:     {results[8]}")
+        print(f"lifetime_consumption_net: {results[9]}")
         if "401" in str(data_results):
             print(
                 "inverters_production:    Unable to retrieve inverter data - Authentication failure"
