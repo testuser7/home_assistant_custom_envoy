@@ -631,6 +631,19 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
                 raise RuntimeError("No match for production, check REGEX  " + text)
         return int(production)
 
+    async def production_net(self):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+
+        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            production = raw_json["production"][1]["wNow"]
+            consumption = raw_json["consumption"][0]["wNow"]
+            consumption_net = raw_json["consumption"][1]["wNow"]
+            return int(production - consumption + consumption_net)
+
+        return None
+
     async def production_phase(self, phase):
         """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
         """so that this method will only read data from stored variables"""
@@ -641,6 +654,25 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             try:
                 return int(
                     raw_json["production"][1]["lines"][phase_map[phase]]["wNow"]
+                )
+            except (KeyError, IndexError):
+                return None
+
+        return None
+
+    async def production_net_phase(self, phase):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+        phase_map = {"production_net_l1": 0,"production_net_l2": 1,"production_net_l3": 2}
+
+        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            try:
+                production_phase = raw_json["production"][1]["lines"][phase_map[phase]]["wNow"]
+                consumption_phase = raw_json["consumption"][0]["lines"][phase_map[phase]]["wNow"]
+                consumption_phase_net = raw_json["consumption"][1]["lines"][phase_map[phase]]["wNow"]
+                return int(
+                    production_phase - consumption_phase + consumption_phase_net
                 )
             except (KeyError, IndexError):
                 return None
@@ -843,6 +875,19 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
                     "No match for Lifetime production, " "check REGEX " + text
                 )
         return int(lifetime_production)
+
+    async def lifetime_production_net(self):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+
+        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            lifetime_production = raw_json["production"][1]["whLifetime"]
+            lifetime_consumption = raw_json["consumption"][0]["whLifetime"]
+            lifetime_consumption_net = raw_json["consumption"][1]["whLifetime"]
+            return int(lifetime_production - lifetime_consumption + lifetime_consumption_net)
+
+        return None
     
     async def lifetime_production_phase(self, phase):
         """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
@@ -855,6 +900,25 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
             try:
                 return int(
                     raw_json["production"][1]["lines"][phase_map[phase]]["whLifetime"]
+                )
+            except (KeyError, IndexError):
+                return None
+
+        return None
+
+    async def lifetime_production_net_phase(self, phase):
+        """Running getData() beforehand will set self.enpoint_type and self.isDataRetrieved"""
+        """so that this method will only read data from stored variables"""
+        phase_map = {"lifetime_production_net_l1": 0,"lifetime_production_net_l2": 1,"lifetime_production_net_l3": 2}
+
+        if self.endpoint_type == ENVOY_MODEL_S and self.isProductionMeteringEnabled and self.isConsumptionMeteringEnabled:
+            raw_json = self.endpoint_production_json_results.json()
+            try:
+                lifetime_production_phase = raw_json["production"][1]["lines"][phase_map[phase]]["whLifetime"]
+                lifetime_consumption_phase = raw_json["consumption"][0]["lines"][phase_map[phase]]["whLifetime"]
+                lifetime_consumption_phase_net = raw_json["consumption"][1]["lines"][phase_map[phase]]["whLifetime"]
+                return int(
+                    lifetime_production_phase - lifetime_consumption_phase + lifetime_consumption_phase_net
                 )
             except (KeyError, IndexError):
                 return None
@@ -1055,6 +1119,7 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
         results = loop.run_until_complete(
             asyncio.gather(
                 self.production(),
+                self.production_net(),
                 self.consumption(),
                 self.consumption_net(),
                 self.daily_production(),
@@ -1062,6 +1127,7 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
                 self.seven_days_production(),
                 self.seven_days_consumption(),
                 self.lifetime_production(),
+                self.lifetime_production_net(),
                 self.lifetime_consumption(),
                 self.lifetime_consumption_net(),
                 self.inverters_production(),
@@ -1071,15 +1137,17 @@ class EnvoyReader:  # pylint: disable=too-many-instance-attributes
         )
 
         print(f"production:               {results[0]}")
-        print(f"consumption:              {results[1]}")
-        print(f"consumption_net:          {results[2]}")
-        print(f"daily_production:         {results[3]}")
-        print(f"daily_consumption:        {results[4]}")
-        print(f"seven_days_production:    {results[5]}")
-        print(f"seven_days_consumption:   {results[6]}")
-        print(f"lifetime_production:      {results[7]}")
-        print(f"lifetime_consumption:     {results[8]}")
-        print(f"lifetime_consumption_net: {results[9]}")
+        print(f"production_net:           {results[1]}")
+        print(f"consumption:              {results[2]}")
+        print(f"consumption_net:          {results[3]}")
+        print(f"daily_production:         {results[4]}")
+        print(f"daily_consumption:        {results[5]}")
+        print(f"seven_days_production:    {results[6]}")
+        print(f"seven_days_consumption:   {results[7]}")
+        print(f"lifetime_production:      {results[8]}")
+        print(f"lifetime_production_net:  {results[9]}")
+        print(f"lifetime_consumption:     {results[10]}")
+        print(f"lifetime_consumption_net: {results[11]}")
         if "401" in str(data_results):
             print(
                 "inverters_production:    Unable to retrieve inverter data - Authentication failure"
